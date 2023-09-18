@@ -39,141 +39,205 @@ type Object =
 	| ExtractKeys<defined, () => void>
 	| thread
 	| RBXScriptConnection
-	| Signal
-	| Signal.Destroyable
-	| Signal.Connection;
+	| globalThis.Player
+	| Player
+	| PlayerHook.Destroyable;
 ```
 
 ### Constructor
 
 ```ts
-const signal = new Signal<string>("Local_Signal");
+const player: PlayerHook = new Player(localPlayer);
 ```
 
-### `Signal.Is`
+### `player.RetrieveCharacter`
 
 ```ts
-public Is(
-		object?: T extends Signal.Object | Signal.Destroyable | true ? RBXScriptConnection : T | defined,
-	): boolean;
+public RetrieveCharacter(): Model;
 ```
 
-Returns whether or not the specified class is a valid Signal reference.
+Return the player's character.
 
-### `Signal.Connect`
+### `player.RetrieveHumanoid`
 
 ```ts
-public Connect(Callback: Callback): (Callback: Callback);
+public RetrieveHumanoid(): Humanoid;
 ```
 
-Connect to the signal while awaiting on a fire to successfully load for the specified callback.
+Return the player's character's humanoid.
 
-### `Signal.ConnectOnce`
+### `player.WaitForCharacter`
 
 ```ts
-public ConnectOnce(Callback: Callback): (Callback: Callback);
+public WaitForCharacter(Callback?: Callback): Model | boolean;
 ```
 
-Unlike the normal connect method, this will run once.
+Wait for and return the player's character (cancels by default if five attempts fail).
 
-### `Signal.ConnectParallel`
+### `player.WaitForHumanoid`
 
 ```ts
-public ConnectParallel(Callback: Callback): (Callback: Callback);
+public WaitForHumanoid(Callback?: Callback): Humanoid | boolean;
 ```
 
-Unlike the normal connect method, this will run in parallel, resulting in zero code interference.
+Wait for and return the player's characters' humanoid (cancels by default if five attempts fail).
 
-### `Signal.ConnectToOnClose`
+### `player.RetrieveName`
 
 ```ts
-ConnectToOnClose(Callback: Callback): (Callback: Callback);
+RetrieveName(): string;
 ```
 
-Unlike the normal connect method, this will run when specified callback when the server's closing.
+Return the player's name.
 
-### `Signal.Wait`
+### `player.RetrievePlayer`
 
 ```ts
-public Wait(Callback: Callback): Signal.Wait;
+public RetrievePlayer(): Player;
 ```
 
-Wait for the connection to be fired and then return any retrieved values.
+Return the player's `Player` object.
 
-### `Signal.Fire`
+### `player.RetrieveUserId`
 
 ```ts
-public Fire(...args: Array<defined>): void;
+public RetrieveUserId(): number ;
 ```
 
-Fire the current signal's connections.
+Return the player's unique UserId.
 
-### `Signal.FireUntil`
+### `player.CharacterAdded`
 
 ```ts
-FireUntil(Callback: Callback, ...args: Array<defined>): void;
+public CharacterAdded(Callback?: Callback): defined;
 ```
 
-Fire the current signal's connections until the specified callback is reached.
+Run the specified callback function on the addition of the player's character.
 
-### `Signal.OnInvoke`
+### `player.HumanoidAdded`
 
 ```ts
-OnInvoke(Callback: Callback): void;
+public HumanoidAdded(Callback?: Callback): defined;
 ```
 
-Create a callback function that'd be activated on invoke, retrieving the function's callback.
+Run the specified callback function on the addition of the player's humanoid.
 
-### `Signal.Invoke`
+### `player.SetJumpPower`
 
 ```ts
-Invoke(...args: Array<defined>): (...args: Array<defined>);
+public SetJumpPower(power: number): defined;
 ```
 
-Wait until the "OnInvoke" method exists and then invoke with the necessary arguments.
+Set the player's jump-power.
 
-### `Signal.Destroy`
+### `player.UseJumpPower`
+
+```ts
+public UseJumpPower(value: boolean): defined;
+```
+
+Set whether or not to use the player's jump-power for jump-related adjustments.
+
+### `player.SetJumpHeight`
+
+```ts
+public SetJumpHeight(height: number): defined;
+```
+
+Set the player's jump-height.
+
+### `player.SetMaxSlopeAngle`
+
+```ts
+public SetMaxSlopeAngle(angle: number): defined;
+```
+
+Set the player's maximum slope angle.
+
+### `player.SetWalkSpeed`
+
+```ts
+public SetWalkSpeed(speed: number): defined;
+```
+
+Kick the player.
+
+### `player.Kick`
+
+```ts
+public Kick(reason: string): boolean;
+```
+
+Set the player's walking speed.
+
+### `player.Destroy`
 
 ```ts
 public Destroy(): void;
 ```
 
-Destroy and cleanup a Signal (making it unusable).
+Destroy and cleanup a player-hook (making it and not the player unusable).
 
 ## Example
 
 ```ts
+// Services
+import { Players } from "@rbxts/services";
+
 // Modules
-import { Signal } from "@rbxts/signal-plus";
+import { PlayerHook } from "./";
+
+// Variables
+const PLAYER_CACHE: Array<Player> = [];
 
 // Functions
-const Table: Array<number> = [1, 2, 3];
+function onPlayerAdded(localPlayer: Player) {
+	if (PLAYER_CACHE.indexOf(localPlayer) !== undefined) {
+		return;
+	}
 
-const TableSignal = new Signal<string>("TableSignal");
+	function characterCallback() {
+		print(`The character has been added!`);
+	}
 
-function callback(currentString: string, ...args: any[]): any | undefined {
-	if (typeIs(currentString, "string") && currentString === "NewEntry") {
-		for (const arg of args) {
-			Table.push(arg);
-		}
+	function humanoidCallback() {
+		print(`The humanoid has been added!`);
+	}
 
-		print(Table);
+	const player: PlayerHook = new PlayerHook<typeof localPlayer>(localPlayer);
+
+	player.CharacterAdded(characterCallback);
+	player.HumanoidAdded(humanoidCallback);
+
+	player.WaitForCharacter(function (...args: Array<Model | boolean>) {
+		print(...args); // --> Model | Model.Name
+
+		print(player.RetrieveCharacter().Name); // --> Model.Name
+	});
+
+	player.WaitForHumanoid(function (...args: Array<Humanoid | boolean>) {
+		print(...args); // --> Humanoid | Humanoid.Name
+
+		player.SetWalkSpeed(1e1); // --> 10
+		print(player.RetrieveHumanoid().WalkSpeed); // --> 10
+
+		player.SetWalkSpeed(1e2); // --> 100
+		print(player.RetrieveHumanoid().WalkSpeed); // --> 100
+	});
+}
+
+function onPlayerRemoving(localPlayer: Player) {
+	if (PLAYER_CACHE.indexOf(localPlayer) === undefined) {
+		return;
+	} else {
+		const player = PLAYER_CACHE.indexOf(localPlayer) as unknown as PlayerHook;
+
+		PLAYER_CACHE.indexOf(localPlayer) === undefined;
+
+		player.Destroy();
 	}
 }
 
-TableSignal.ConnectOnce(callback);
-
-function callback() {
-	while (true) {
-		if (Table.includes(7)) {
-			break;
-		}
-
-		task.wait(1);
-	}
-}
-
-TableSignal.FireUntil(callback, "NewEntry", 1);
-
-TableSignal.Destroy();
+Players.PlayerAdded.Connect(onPlayerAdded);
+Players.PlayerRemoving.Connect(onPlayerRemoving);
 ```

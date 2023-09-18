@@ -71,7 +71,7 @@ type PlayerHook = {
 			const Humanoid: Humanoid = player.RetrieveHumanoid()
 		```
 	 */
-	RetrieveHumanoid<T extends Model>(): Model | T;
+	RetrieveHumanoid<T extends Humanoid>(): Humanoid | T;
 
 	/**
 		@within Player
@@ -99,7 +99,7 @@ type PlayerHook = {
 		```ts
 			// Functions
 			// Placeholder code.
-			player.WaitForCharacter(function(...args: Array<Model | boolean>) {
+			player.WaitForCharacter(function (...args: Array<Model | boolean>) {
 				print(...args) // --> Model | Model.Name
 
 				print(player.RetrieveCharacter().Name) // --> Model.Name
@@ -138,8 +138,8 @@ type PlayerHook = {
 		```ts
 			// Functions
 			// Placeholder code.
-			player.WaitForCharacter(function(...args: Array<Model | boolean>) {
-				print(...) // --> Humanoid | Humanoid.Name
+			player.WaitForHumanoid(function (...args: Array<Model | boolean>) {
+				print(...args) // --> Humanoid | Humanoid.Name
 
 				player.SetWalkSpeed(1e+1) // --> 10
 				print(player.RetrieveHumanoid().WalkSpeed) // --> 10
@@ -183,7 +183,7 @@ type PlayerHook = {
 
 		@return Player -- Return the player's player object.
 
-		Return the player's player object.
+		Return the player's `Player` object.
 
 		### Luau:
 		```lua
@@ -447,24 +447,24 @@ type PlayerHook = {
 	Kick<T extends string | boolean>(reason: string): boolean | T;
 
 	/**
-		@within Signal
+		@within Player
 
 		@method Destroy
 
-		Destroy and cleanup a Signal (making it unusable).
+		Destroy and cleanup a player-hook (making it and not the player unusable).
 
 		### Luau:
 		```lua
 			--// Functions
 			--// Placeholder code.
-			TableSignal:Destroy()
+			player:Destroy()
 		```
 
 		### TypeScript:
 		```ts
 			// Functions
 			// Placeholder code.
-			TableSignal.Destroy();
+			player.Destroy();
 		```
 	*/
 	Destroy(): void;
@@ -510,7 +510,7 @@ interface PlayerConstructor {
 
 			// Functions
 			function onPlayerAdded(localPlayer: Player) {
-				const player: PlayerHook = new Player<type(LocalPlayer)>(localPlayer)
+				const player: PlayerHook = new PlayerHook<typeof localPlayer>(localPlayer);
 			}
 
 			Players.PlayerAdded.Connect(onPlayerAdded);
