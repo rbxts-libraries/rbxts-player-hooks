@@ -1,0 +1,9 @@
+[package]
+name = "rbxts-libraries/rbxts-player-hooks"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+private = true
+
+[dependencies]
+Player = "robloxiandemo/player@0.1.7"
