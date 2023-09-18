@@ -1,6 +1,6 @@
 {
 	"name": "@rbxts/player-hooks",
-	"version": "1.0.0-beta.0",
+	"version": "1.0.0-beta.1",
 	"description": "A port of RobloxianDemo's Player class.",
 	"main": "src/Player/init.luau",
 	"types": "src/Player/index.d.ts",
