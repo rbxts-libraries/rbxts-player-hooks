@@ -58,3 +58,4 @@ luac.out
 /serverpackages
 /.yarn
 *.tsbuildinfo
+*-lock.yaml

@@ -1,6 +1,6 @@
 {
 	"name": "@rbxts/player-hooks",
-	"version": "1.0.0-beta.1",
+	"version": "1.0.1-beta.0",
 	"description": "A port of RobloxianDemo's Player class.",
 	"main": "src/Player/init.luau",
 	"types": "src/Player/index.d.ts",
@@ -42,11 +42,10 @@
 		"access": "public"
 	},
 	"devDependencies": {
-		"@rbxts/compiler-types": "^2.1.1-types.0",
-		"@rbxts/types": "^1.0.712"
+		"@rbxts/compiler-types": "2.3.0-types.2",
+		"@rbxts/types": "^1.0.799"
 	},
-	"packageManager": "yarn@3.6.3",
 	"dependencies": {
-		"@rbxts/services": "^1.5.1"
+		"@rbxts/services": "^1.5.4"
 	}
 }
